@@ -5,7 +5,7 @@ import loginService from './services/login'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [newBlog, setNewBlog] = useState({ name: '', author: '', url: '' })
+  const [newBlog, setNewBlog] = useState({ title: '', author: '', url: '' })
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
@@ -50,16 +50,17 @@ const App = () => {
     
   }
 
+  const handleBlogChange = (event) => {
+    event.preventDefault()
+    const { name, value } = event.target
+    setNewBlog({ ...newBlog, [name]: value })
+  }
+
   const addBlog = async event => {
-    event.preventDefault
-    const newBlog = {
-      title: "Viagens na minha terra",
-      author: "Graciliano Ramos",
-      url: "teste.com"
-    }
+    event.preventDefault()
     const savedBlog = await blogService.create(newBlog)
     setBlogs(blogs.concat(savedBlog))
-    setNewBlog(null)
+    setNewBlog({ title: '', author: '', url: '' })
   }
 
   const logout = () => {
@@ -89,6 +90,7 @@ const App = () => {
               onChange={({ target }) => setPassword(target.value)}
             />
           </div>
+          {errorMessage && <p>{errorMessage}</p>}
           <button type='submit'>login</button>
         </form>
       </>
@@ -99,9 +101,26 @@ const App = () => {
     return(
       <>
       <form onSubmit={addBlog}>
-        <input type="text" 
-        value={newBlog.name}
-        onChange={ event => setNewBlog({ ...newBlog, name: event.target.value })}
+        <input
+          type="text"
+          name="title"
+          value={newBlog.title}
+          onChange={handleBlogChange}
+          placeholder="Title"
+        />
+        <input
+          type="text"
+          name="author"
+          value={newBlog.author}
+          onChange={handleBlogChange}
+          placeholder="Author"
+        />
+        <input
+          type="text"
+          name="url"
+          value={newBlog.url}
+          onChange={handleBlogChange}
+          placeholder="URL"
         />
         <button type='sumbit'>add blog</button>
       </form>
