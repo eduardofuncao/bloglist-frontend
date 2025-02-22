@@ -12,6 +12,7 @@ const App = () => {
 
 
   const [errorMessage, setErrorMessage] = useState(null)
+  const [popupMessage, setPopupMessage] = useState(null)
   
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -28,6 +29,13 @@ const App = () => {
     }
   }, [])
 
+  const setErrorTimer = (message) => {
+    setErrorMessage(message)
+    setTimeout(() => {
+      setErrorMessage(null)
+    }, 5000);
+  }
+
   const handleLogin = async event => {
     event.preventDefault()
     
@@ -42,10 +50,7 @@ const App = () => {
       setPassword('')
     }
     catch (exception) {
-      setErrorMessage('invalid username or password')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000);
+      setErrorTimer('invalid username or password')
     }
     
   }
@@ -58,9 +63,18 @@ const App = () => {
 
   const addBlog = async event => {
     event.preventDefault()
-    const savedBlog = await blogService.create(newBlog)
-    setBlogs(blogs.concat(savedBlog))
-    setNewBlog({ title: '', author: '', url: '' })
+    try {
+      const savedBlog = await blogService.create(newBlog)
+      setBlogs(blogs.concat(savedBlog))
+      setNewBlog({ title: '', author: '', url: '' })
+      setPopupMessage('new blog' + savedBlog.title + ' by ' + savedBlog.author + ' added to the blog list')
+      setTimeout(() => {
+        setPopupMessage(null)
+      }, 5000);
+    } catch (error) {
+      setErrorTimer('error adding blog')
+
+    }
   }
 
   const logout = () => {
@@ -73,6 +87,7 @@ const App = () => {
     return(
       <>
         <h2>login</h2>
+        
         <form onSubmit={handleLogin}>
           <div>
             username
@@ -132,6 +147,8 @@ const App = () => {
   return (
     <div>
       <h1>bloglist</h1>
+
+      {popupMessage && <p>{popupMessage}</p>}
 
       {user === null
         ? loginForm()
